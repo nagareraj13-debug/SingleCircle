@@ -1,0 +1,1856 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" id="metaThemeColor" content="#04060c" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="manifest.json" />
+  <title>SingleCircle — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="dark"] {
+      --bg: #04060c;
+      --bg-elevated: #0d111a;
+      --aurora-1: rgba(59, 130, 246, 0.2);
+      --aurora-2: rgba(99, 102, 241, 0.11);
+      --text: #f8fafc;
+      --text-soft: #cbd5e1;
+      --muted: #7c8aa3;
+      --hairline: rgba(255, 255, 255, 0.08);
+      --accent: #3b82f6;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --accent-text: #7dd3fc;
+      --chip-bg: rgba(255, 255, 255, 0.055);
+      --icon-btn-bg: #151820;
+      --icon-btn-ring: #292d38;
+      --icon-btn-shadow: inset 0 1px 1px rgba(255,255,255,0.09), 0 4px 14px rgba(0,0,0,0.55);
+      --icon-color: #ffffff;
+      --dock-bg: rgba(12, 16, 25, 0.86);
+      --sheet-bg: #0b0f18;
+      --bubble-other: rgba(255, 255, 255, 0.075);
+      --danger: #f87171;
+      --danger-soft: rgba(239, 68, 68, 0.14);
+      --online: #22c55e;
+      color-scheme: dark;
+    }
+
+    [data-theme="light"] {
+      --bg: #f6f8fc;
+      --bg-elevated: #ffffff;
+      --aurora-1: rgba(59, 130, 246, 0.14);
+      --aurora-2: rgba(56, 189, 248, 0.1);
+      --text: #0b1120;
+      --text-soft: #334155;
+      --muted: #64748b;
+      --hairline: rgba(15, 23, 42, 0.085);
+      --accent: #2563eb;
+      --accent-soft: rgba(37, 99, 235, 0.11);
+      --accent-text: #2563eb;
+      --chip-bg: rgba(15, 23, 42, 0.055);
+      --icon-btn-bg: #ffffff;
+      --icon-btn-ring: #e2e8f0;
+      --icon-btn-shadow: inset 0 1px 1px rgba(255,255,255,0.9), 0 4px 12px rgba(15,23,42,0.08);
+      --icon-color: #0f172a;
+      --dock-bg: rgba(255, 255, 255, 0.88);
+      --sheet-bg: #ffffff;
+      --bubble-other: rgba(15, 23, 42, 0.065);
+      --danger: #dc2626;
+      --danger-soft: rgba(220, 38, 38, 0.1);
+      --online: #16a34a;
+      color-scheme: light;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    html, body {
+      height: 100dvh;
+      background-color: var(--bg);
+      color: var(--text);
+      overflow: hidden;
+      transition: background-color 0.28s ease, color 0.28s ease;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Smooth Living Aurora (Zero Square Grid) */
+    .ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .ambient::before {
+      content: "";
+      position: absolute;
+      top: -170px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 540px;
+      height: 400px;
+      background: radial-gradient(circle, var(--aurora-1) 0%, transparent 72%);
+      animation: softPulse 9s ease-in-out infinite alternate;
+    }
+
+    .ambient::after {
+      content: "";
+      position: absolute;
+      bottom: -180px;
+      right: -120px;
+      width: 360px;
+      height: 360px;
+      background: radial-gradient(circle, var(--aurora-2) 0%, transparent 70%);
+    }
+
+    @keyframes softPulse {
+      from { opacity: 0.75; transform: translateX(-50%) scale(0.96); }
+      to { opacity: 1; transform: translateX(-50%) scale(1.06); }
+    }
+
+    /* Top Bar */
+    .topbar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: max(16px, env(safe-area-inset-top)) 20px 10px;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* Animated SingleCircle Logo */
+    .brand-logo {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px 4px 0;
+      user-select: none;
+    }
+
+    .brand-word {
+      position: relative;
+      z-index: 2;
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: var(--text);
+      line-height: 1;
+    }
+
+    .brand-circle-wrap {
+      position: relative;
+      display: inline-block;
+    }
+
+    .brand-circle-text {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(105deg, #60a5fa 0%, #3b82f6 38%, #bae6fd 52%, #3b82f6 68%, #60a5fa 100%);
+      background-size: 220% auto;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: brandShimmer 5.5s linear infinite;
+    }
+
+    @keyframes brandShimmer {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+
+    .mini-orbit-svg {
+      position: absolute;
+      top: 50%;
+      left: 56%;
+      transform: translate(-50%, -50%);
+      width: 82px;
+      height: 58px;
+      pointer-events: none;
+      overflow: visible;
+      z-index: 1;
+      filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.45));
+    }
+
+    .mini-orbit-g1 {
+      transform-origin: 41px 29px;
+      animation: miniSway1 7s ease-in-out infinite alternate;
+    }
+
+    .mini-orbit-g2 {
+      transform-origin: 41px 29px;
+      animation: miniSway2 8.5s ease-in-out infinite alternate;
+    }
+
+    @keyframes miniSway1 {
+      from { transform: rotate(-56deg); }
+      to { transform: rotate(-44deg); }
+    }
+
+    @keyframes miniSway2 {
+      from { transform: rotate(40deg); }
+      to { transform: rotate(52deg); }
+    }
+
+    /* Top-Right Tactile Circular Buttons */
+    .top-controls {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+
+    .tactile-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--icon-btn-bg);
+      border: 2px solid var(--icon-btn-ring);
+      box-shadow: var(--icon-btn-shadow);
+      color: var(--icon-color);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      transition: transform 0.16s ease, background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .tactile-btn:active { transform: scale(0.91); }
+    .tactile-btn svg { width: 20px; height: 20px; stroke-width: 1.9; }
+
+    /* Main Fluid Scroll Canvas */
+    .canvas-scroll {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 20px 112px;
+      max-width: 540px;
+      width: 100%;
+      margin: 0 auto;
+      scrollbar-width: none;
+    }
+    .canvas-scroll::-webkit-scrollbar { display: none; }
+
+    /* Greeting Row */
+    .greeting-row {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      margin: 6px 0 18px;
+    }
+
+    .greeting-row h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.038em;
+      line-height: 1.15;
+    }
+
+    .greeting-row h1 span { color: var(--accent-text); }
+
+    .live-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--muted);
+      padding-bottom: 4px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--online);
+      box-shadow: 0 0 8px rgba(34, 197, 94, 0.85);
+    }
+
+    /* Discover Study Buddy Capsule */
+    .discover-pill {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(56, 189, 248, 0.08));
+      border: 1px solid rgba(96, 165, 250, 0.3);
+      border-radius: 999px;
+      padding: 11px 16px 11px 14px;
+      margin-bottom: 18px;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform 0.16s ease;
+    }
+
+    .discover-pill:active { transform: scale(0.98); }
+
+    .discover-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .discover-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.4);
+    }
+
+    .discover-text { text-align: left; min-width: 0; }
+    .discover-title { font-size: 13.5px; font-weight: 700; }
+    .discover-sub { font-size: 11.5px; color: var(--muted); }
+
+    /* Borderless Underline Search */
+    .search-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 4px;
+      border-bottom: 1px solid var(--hairline);
+      margin-bottom: 14px;
+      transition: border-color 0.2s ease;
+    }
+
+    .search-line:focus-within { border-bottom-color: var(--accent); }
+    .search-line svg { width: 18px; height: 18px; color: var(--muted); flex-shrink: 0; }
+
+    .search-line input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--text);
+      font-size: 14.5px;
+      font-weight: 500;
+    }
+    .search-line input::placeholder { color: var(--muted); }
+
+    /* Section Micro-Headers */
+    .micro-label {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin: 20px 0 11px;
+    }
+
+    /* Floating Orbit Avatar Strip */
+    .orbit-strip {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding: 4px 2px 10px;
+      scrollbar-width: none;
+    }
+    .orbit-strip::-webkit-scrollbar { display: none; }
+
+    .orbit-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 7px;
+      width: 68px;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: transform 0.16s ease;
+    }
+    .orbit-node:active { transform: scale(0.93); }
+
+    .orbit-ring-wrap {
+      position: relative;
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      padding: 2.5px;
+      background: linear-gradient(135deg, #38bdf8, #3b82f6, #818cf8);
+    }
+
+    .orbit-ring-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: var(--bg);
+      padding: 2px;
+    }
+
+    .orbit-avatar {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .orbit-avatar img, .row-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .online-badge {
+      position: absolute;
+      top: 1px;
+      right: 1px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--online);
+      border: 2px solid var(--bg);
+    }
+
+    .orbit-country-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      background: var(--bg-elevated);
+      border: 1.5px solid var(--hairline);
+      color: var(--accent-text);
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 5px;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .orbit-node-name {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-soft);
+      width: 100%;
+      text-align: center;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Borderless Hairline Rows */
+    .fluid-list { display: flex; flex-direction: column; }
+
+    .fluid-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 15px 2px;
+      border-bottom: 1px solid var(--hairline);
+      cursor: pointer;
+      transition: opacity 0.16s ease;
+    }
+    .fluid-row:last-child { border-bottom: none; }
+    .fluid-row:active { opacity: 0.72; }
+
+    .avatar-wrap { position: relative; flex-shrink: 0; }
+
+    .row-avatar {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #3b82f6, #0ea5e9);
+      display: grid;
+      place-items: center;
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    .circle-orb {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      font-weight: 800;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .circle-orb::after {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1px dashed rgba(59, 130, 246, 0.35);
+    }
+
+    .row-body { flex: 1; min-width: 0; }
+
+    .row-top {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .row-title {
+      font-size: 15px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .inline-tag {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--accent-text);
+      background: var(--accent-soft);
+      padding: 2px 8px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+
+    .row-sub {
+      font-size: 12.8px;
+      color: var(--muted);
+      margin-top: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .pill-action {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: transform 0.15s ease;
+    }
+
+    .pill-action:active { transform: scale(0.94); }
+    .pill-blue { background: var(--accent); color: #ffffff; }
+    .pill-subtle { background: var(--chip-bg); color: var(--text-soft); }
+    .pill-red { background: var(--danger-soft); color: var(--danger); }
+
+    .empty-note {
+      padding: 36px 8px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 13.5px;
+      line-height: 1.6;
+    }
+
+    /* Floating 3-Tab Pill Dock */
+    .floating-dock {
+      position: fixed;
+      bottom: max(16px, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--dock-bg);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      border: 1px solid var(--hairline);
+      border-radius: 999px;
+      padding: 6px;
+      z-index: 20;
+      box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3);
+    }
+
+    .dock-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .dock-btn svg { width: 19px; height: 19px; }
+
+    .dock-btn.active {
+      background: var(--accent);
+      color: #ffffff;
+      box-shadow: 0 6px 18px rgba(59, 130, 246, 0.35);
+    }
+
+    .dock-dot {
+      position: absolute;
+      top: 7px;
+      right: 11px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #ef4444;
+    }
+
+    /* Full-Screen Realtime Chat */
+    .chat-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg);
+      z-index: 40;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: max(14px, env(safe-area-inset-top)) 16px 12px;
+      border-bottom: 1px solid var(--hairline);
+      background: var(--bg);
+    }
+
+    .chat-stream {
+      flex: 1;
+      overflow-y: auto;
+      padding: 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 15px;
+      border-radius: 22px;
+      font-size: 14px;
+      line-height: 1.48;
+      word-wrap: break-word;
+    }
+
+    .msg.other {
+      align-self: flex-start;
+      background: var(--bubble-other);
+      color: var(--text);
+      border-bottom-left-radius: 6px;
+    }
+
+    .msg.me {
+      align-self: flex-end;
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #ffffff;
+      border-bottom-right-radius: 6px;
+    }
+
+    .msg-sender {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent-text);
+      margin-bottom: 3px;
+    }
+
+    .msg-time {
+      font-size: 10px;
+      opacity: 0.65;
+      margin-top: 4px;
+      text-align: right;
+    }
+
+    .icebreaker-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 14px;
+      border-top: 1px solid var(--hairline);
+      scrollbar-width: none;
+    }
+    .icebreaker-bar::-webkit-scrollbar { display: none; }
+
+    .ice-chip {
+      flex-shrink: 0;
+      background: var(--accent-soft);
+      color: var(--accent-text);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 999px;
+      cursor: pointer;
+    }
+
+    .composer {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px max(14px, env(safe-area-inset-bottom));
+      border-top: 1px solid var(--hairline);
+      background: var(--bg);
+    }
+
+    .composer input {
+      flex: 1;
+      background: var(--chip-bg);
+      border: 1px solid var(--hairline);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 12px 16px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .spark-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--hairline);
+      background: var(--chip-bg);
+      color: var(--accent-text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .send-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* Native Bottom Sheets with Clear Close (✕) Button */
+    .sheet-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 5, 12, 0.72);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      z-index: 50;
+    }
+
+    .sheet {
+      width: 100%;
+      max-width: 500px;
+      background: var(--sheet-bg);
+      border-top: 1px solid var(--hairline);
+      border-radius: 30px 30px 0 0;
+      padding: 12px 24px max(28px, env(safe-area-inset-bottom));
+      max-height: 88dvh;
+      overflow-y: auto;
+      animation: slideUp 0.26s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--hairline);
+      border-radius: 999px;
+      margin: 0 auto 14px;
+    }
+
+    .sheet-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .close-circle {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: 1px solid var(--hairline);
+      background: var(--chip-bg);
+      color: var(--text);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: transform 0.14s ease;
+    }
+
+    .close-circle:active { transform: scale(0.9); }
+
+    .line-field { margin-bottom: 16px; }
+
+    .line-field label {
+      display: block;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .line-field input, .line-field select {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--hairline);
+      color: var(--text);
+      font-size: 15px;
+      font-weight: 500;
+      padding: 9px 0;
+      outline: none;
+    }
+
+    .line-field input:focus, .line-field select:focus { border-bottom-color: var(--accent); }
+
+    .btn-full {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 14px 20px;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-full:disabled { opacity: 0.65; pointer-events: none; }
+
+    .btn-full-blue {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: #ffffff;
+      box-shadow: 0 10px 24px rgba(37, 99, 235, 0.32);
+    }
+
+    .btn-full-ghost {
+      margin-top: 10px;
+      background: var(--chip-bg);
+      color: var(--text);
+    }
+
+    .btn-full-red {
+      margin-top: 10px;
+      background: var(--danger-soft);
+      color: var(--danger);
+    }
+
+    .toast {
+      position: fixed;
+      top: max(72px, env(safe-area-inset-top));
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-elevated);
+      border: 1px solid var(--hairline);
+      color: var(--text);
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+      z-index: 60;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+    }
+
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <!-- Top Bar -->
+  <header class="topbar">
+    <div class="brand-logo">
+      <span class="brand-word">Single<span class="brand-circle-wrap"><span class="brand-circle-text">Circle</span>
+        <svg class="mini-orbit-svg" viewBox="0 0 82 58" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="miniOrbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.95" />
+              <stop offset="100%" stop-color="#3b82f6" stop-opacity="0.12" />
+            </linearGradient>
+          </defs>
+          <g class="mini-orbit-g1">
+            <ellipse cx="41" cy="29" rx="28" ry="11.5" stroke="url(#miniOrbGrad)" stroke-width="1.45" />
+            <circle r="2.3" fill="#e0f2fe">
+              <animateMotion dur="3.4s" repeatCount="indefinite" path="M 69 29 A 28 11.5 0 1 0 13 29 A 28 11.5 0 1 0 69 29" />
+            </circle>
+          </g>
+          <g class="mini-orbit-g2">
+            <ellipse cx="41" cy="29" rx="25" ry="10.5" stroke="#38bdf8" stroke-opacity="0.45" stroke-width="1.15" stroke-dasharray="3 3.5" />
+            <circle r="1.9" fill="#60a5fa">
+              <animateMotion dur="4.2s" repeatCount="indefinite" path="M 16 29 A 25 10.5 0 1 1 66 29 A 25 10.5 0 1 1 16 29" />
+            </circle>
+          </g>
+        </svg>
+      </span></span>
+    </div>
+
+    <div class="top-controls">
+      <button class="tactile-btn" id="openSettingsBtn" type="button" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/>
+          <circle cx="12" cy="12" r="3"/>
+        </svg>
+      </button>
+
+      <button class="tactile-btn" id="themeToggleBtn" type="button" aria-label="Toggle theme">
+        <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2"/><path d="M12 20v2"/>
+          <path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/>
+          <path d="M2 12h2"/><path d="M20 12h2"/>
+          <path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>
+        </svg>
+        <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Fluid Views -->
+  <main class="canvas-scroll">
+    <!-- TAB 1: ORBIT (EXPLORE) -->
+    <section id="view-orbit">
+      <div class="greeting-row">
+        <h1>Hey, <span id="greetName">Learner</span></h1>
+        <div class="live-pill">
+          <span class="pulse-dot"></span>
+          <span id="totalPeersPill">0 Peers</span>
+        </div>
+      </div>
+
+      <!-- Discover Study Buddy Pill -->
+      <button class="discover-pill" id="orbitMatchBtn" type="button">
+        <div class="discover-left">
+          <div class="discover-icon">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+            </svg>
+          </div>
+          <div class="discover-text">
+            <div class="discover-title">Discover a Study Buddy</div>
+            <div class="discover-sub">Instant pick from active global learners</div>
+          </div>
+        </div>
+        <span class="pill-action pill-blue">Spin</span>
+      </button>
+
+      <!-- Clean Underline Search -->
+      <div class="search-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="text" id="peerSearch" placeholder="Search name, country or college..." autocomplete="off" />
+      </div>
+
+      <!-- Floating Active Orbits Strip -->
+      <div id="orbitStripWrap" class="hidden">
+        <div class="micro-label"><span>Live Orbits</span><span>Tap to connect</span></div>
+        <div class="orbit-strip" id="orbitStrip"></div>
+      </div>
+
+      <!-- Incoming Mutual Requests -->
+      <div id="requestsWrap" class="hidden">
+        <div class="micro-label"><span>Connect Requests</span><span id="reqCount">0</span></div>
+        <div class="fluid-list" id="requestsList"></div>
+      </div>
+
+      <!-- Borderless Global Peers Directory -->
+      <div class="micro-label"><span>Global Directory</span><span id="peerCount">0</span></div>
+      <div class="fluid-list" id="peersList">
+        <div class="empty-note">Syncing global peers...</div>
+      </div>
+    </section>
+
+    <!-- TAB 2: STUDY CIRCLES -->
+    <section id="view-circles" class="hidden">
+      <div class="greeting-row">
+        <h1>Study <span>Circles</span></h1>
+        <button class="pill-action pill-blue" id="openNewCircleBtn" type="button">+ New Circle</button>
+      </div>
+      <p style="font-size:13.5px; color:var(--muted); margin-bottom:14px;">Join global topic rooms or start your own study group.</p>
+      <div class="fluid-list" id="circlesList"></div>
+    </section>
+
+    <!-- TAB 3: MUTUAL CHATS -->
+    <section id="view-chats" class="hidden">
+      <div class="greeting-row">
+        <h1>Your <span>Chats</span></h1>
+      </div>
+      <p style="font-size:13.5px; color:var(--muted); margin-bottom:14px;">Private conversations unlocked via mutual connection.</p>
+      <div class="fluid-list" id="chatsList">
+        <div class="empty-note">No mutual chats yet. Tap any peer in Orbit to connect!</div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Floating 3-Tab Dock -->
+  <nav class="floating-dock">
+    <button class="dock-btn active" data-tab="orbit" onclick="switchTab('orbit')">
+      <span id="reqDot" class="dock-dot hidden"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+      Orbit
+    </button>
+    <button class="dock-btn" data-tab="circles" onclick="switchTab('circles')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Circles
+    </button>
+    <button class="dock-btn" data-tab="chats" onclick="switchTab('chats')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chats
+    </button>
+  </nav>
+
+  <!-- Full-Screen Realtime Chat -->
+  <div id="chatScreen" class="chat-screen hidden">
+    <div class="chat-bar">
+      <button class="tactile-btn" style="width:38px; height:38px;" onclick="closeChat()" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="row-body">
+        <div class="row-title" id="chatTitle">Chat</div>
+        <div class="row-sub" id="chatSub">Live</div>
+      </div>
+      <button class="pill-action pill-red hidden" id="chatSafetyBtn" onclick="openChatSafety()">Report / Block</button>
+    </div>
+
+    <div class="chat-stream" id="chatStream"></div>
+
+    <div class="icebreaker-bar hidden" id="icebreakerBar">
+      <button class="ice-chip" type="button">Hey! What are you studying right now?</button>
+      <button class="ice-chip" type="button">How's college life in your country?</button>
+      <button class="ice-chip" type="button">Want to share projects or study together?</button>
+      <button class="ice-chip" type="button">What are you learning this month?</button>
+    </div>
+
+    <form class="composer" id="chatForm">
+      <button class="spark-btn" id="toggleIceBtn" type="button" aria-label="Icebreakers" title="Icebreakers">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/>
+        </svg>
+      </button>
+      <input type="text" id="chatInput" placeholder="Write a message..." autocomplete="off" required />
+      <button class="send-circle" type="submit" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <!-- Peer Profile & Safety Sheet -->
+  <div id="peerSheet" class="sheet-backdrop hidden" onclick="if(event.target.id==='peerSheet') closePeerSheet()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div style="display:flex; align-items:center; gap:14px; min-width:0;">
+          <div class="avatar-wrap">
+            <div class="row-avatar" style="width:54px; height:54px; font-size:20px;" id="sheetAvatar">S</div>
+            <span class="online-badge hidden" id="sheetOnlineDot"></span>
+          </div>
+          <div style="min-width:0;">
+            <h3 id="sheetName" style="font-size:19px; font-weight:800;">Student</h3>
+            <p id="sheetMeta" style="font-size:13px; color:var(--muted); margin-top:2px;"></p>
+          </div>
+        </div>
+        <button class="close-circle" type="button" onclick="closePeerSheet()" aria-label="Close">✕</button>
+      </div>
+      <p id="sheetBio" style="font-size:14px; color:var(--text-soft); line-height:1.6; margin-bottom:20px;"></p>
+      <div id="sheetPrimaryAction"></div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px;">
+        <button class="pill-action pill-red" style="padding:12px;" id="sheetReportBtn" type="button">Report User</button>
+        <button class="pill-action pill-subtle" style="padding:12px;" id="sheetBlockBtn" type="button">Block User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create New Study Circle Sheet -->
+  <div id="newCircleSheet" class="sheet-backdrop hidden" onclick="if(event.target.id==='newCircleSheet') closeNewCircle()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <h3 style="font-size:20px; font-weight:800;">Create a Study Circle</h3>
+        <button class="close-circle" type="button" onclick="closeNewCircle()" aria-label="Close">✕</button>
+      </div>
+      <form id="newCircleForm">
+        <div class="line-field">
+          <label for="circleNameInput">Circle Name</label>
+          <input type="text" id="circleNameInput" maxlength="36" placeholder="e.g. Global Student Lounge" required />
+        </div>
+        <div class="line-field">
+          <label for="circleTagInput">Category Tag</label>
+          <select id="circleTagInput">
+            <option value="Global">Global</option>
+            <option value="Study">Study</option>
+            <option value="Tech">Tech</option>
+            <option value="Culture">Culture</option>
+            <option value="Friends">Friends</option>
+          </select>
+        </div>
+        <div class="line-field">
+          <label for="circleDescInput">Short Description</label>
+          <input type="text" id="circleDescInput" maxlength="75" placeholder="What will students talk & learn here?" required />
+        </div>
+        <button class="btn-full btn-full-blue" type="submit">Create Circle</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Settings & Profile Sheet (With ✕ Close Button) -->
+  <div id="settingsSheet" class="sheet-backdrop hidden" onclick="if(event.target.id==='settingsSheet') closeSettings()">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="sheet-header">
+        <div style="display:flex; align-items:center; gap:9px;">
+          <h3 style="font-size:20px; font-weight:800;">Settings & Profile</h3>
+          <span class="inline-tag" id="settingsEmailTag">Verified</span>
+        </div>
+        <button class="close-circle" type="button" onclick="closeSettings()" aria-label="Close Settings">✕</button>
+      </div>
+
+      <form id="profileForm">
+        <div class="line-field">
+          <label for="profName">Your Name (Shown as Hey, Name)</label>
+          <input type="text" id="profName" placeholder="e.g. Raj" required />
+        </div>
+        <div class="line-field">
+          <label for="profCountry">Country</label>
+          <input type="text" id="profCountry" placeholder="e.g. India, Japan, Germany" required />
+        </div>
+        <div class="line-field">
+          <label for="profCollege">College / Course</label>
+          <input type="text" id="profCollege" placeholder="e.g. B.Tech CSE" />
+        </div>
+        <div class="line-field">
+          <label for="profBio">Bio</label>
+          <input type="text" id="profBio" maxlength="100" placeholder="Looking to share skills & make global friends" />
+        </div>
+        <button class="btn-full btn-full-blue" id="saveProfileBtn" type="submit">Save Changes</button>
+      </form>
+
+      <button class="btn-full btn-full-ghost hidden" id="unblockAllBtn" type="button">Unblock Blocked Users (0)</button>
+      <a id="adminLinkBtn" href="admin.html" class="btn-full btn-full-ghost hidden" style="display:block; text-align:center; text-decoration:none; margin-top:10px;">Open Owner Admin Panel</a>
+      <button class="btn-full btn-full-ghost" id="logoutBtn" type="button">Log Out</button>
+      <button class="btn-full btn-full-red" id="deleteAccountBtn" type="button">Delete Account Permanently</button>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+
+  <!-- Instant Name & Theme Preload (Zero Flicker) -->
+  <script>
+    const cachedName = localStorage.getItem("sc_first_name");
+    if (cachedName) {
+      document.getElementById("greetName").textContent = cachedName;
+    }
+
+    const htmlEl = document.documentElement;
+    const sunIcon = document.getElementById("sunIcon");
+    const moonIcon = document.getElementById("moonIcon");
+    const metaTheme = document.getElementById("metaThemeColor");
+
+    function applyTheme(theme) {
+      htmlEl.setAttribute("data-theme", theme);
+      localStorage.setItem("sc_theme", theme);
+      const isDark = theme === "dark";
+      sunIcon.classList.toggle("hidden", !isDark);
+      moonIcon.classList.toggle("hidden", isDark);
+      metaTheme.setAttribute("content", isDark ? "#04060c" : "#f6f8fc");
+    }
+
+    applyTheme(localStorage.getItem("sc_theme") || "dark");
+
+    document.getElementById("themeToggleBtn").addEventListener("click", () => {
+      const next = htmlEl.getAttribute("data-theme") === "dark" ? "light" : "dark";
+      applyTheme(next);
+    });
+
+    // Basic UI sheet toggles work immediately even before Firebase loads
+    document.getElementById("openSettingsBtn").addEventListener("click", () => {
+      document.getElementById("settingsSheet").classList.remove("hidden");
+    });
+    window.closeSettings = () => document.getElementById("settingsSheet").classList.add("hidden");
+    window.closePeerSheet = () => document.getElementById("peerSheet").classList.add("hidden");
+    window.closeNewCircle = () => document.getElementById("newCircleSheet").classList.add("hidden");
+    window.switchTab = (tab) => {
+      ["orbit", "circles", "chats"].forEach(t => {
+        document.getElementById(`view-${t}`).classList.toggle("hidden", t !== tab);
+      });
+      document.querySelectorAll(".dock-btn").forEach(b => {
+        b.classList.toggle("active", b.dataset.tab === tab);
+      });
+    };
+  </script>
+
+  <!-- Firebase Live Logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+    import { getAuth, onAuthStateChanged, updateProfile, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import {
+      getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc,
+      collection, addDoc, query, where, orderBy, limit,
+      onSnapshot, serverTimestamp, arrayUnion
+    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyACZOLeOz4XOK6dO1LW0Nbf27ng2ZPaC08",
+      authDomain: "singlecircle.firebaseapp.com",
+      projectId: "singlecircle",
+      storageBucket: "singlecircle.firebasestorage.app",
+      messagingSenderId: "145275527506",
+      appId: "1:145275527506:web:e223164b91c7c759f0da8b",
+      measurementId: "G-D9EGP5N3PF"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    try { getAnalytics(app); } catch {}
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let myProfile = null;
+    let allUsers = [];
+    let pendingRequestsMap = new Map();
+    let dmListMap = new Map();
+    let myConnections = new Set();
+    let customCircles = [];
+    let searchTerm = "";
+    let activeChat = null;
+    let unsubChat = null;
+
+    const DEFAULT_CIRCLES = [
+      { id: "global-intro", name: "Global Introductions", desc: "Meet college students from India & worldwide", tag: "Open" },
+      { id: "campus-life", name: "College & Campus Life", desc: "Share daily college stories, tips & friendships", tag: "Students" },
+      { id: "skill-share", name: "Skill & Project Share", desc: "Collaborate, learn new skills & build together", tag: "Skills" },
+      { id: "study-abroad", name: "Abroad Studies & Culture", desc: "Universities, scholarships & culture exchange", tag: "Global" }
+    ];
+
+    const esc = (s = "") => String(s).replace(/[&<>"']/g, m => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+    }[m]));
+
+    // Always extract First Name only (never surname)
+    function getFirstName(fullName = "") {
+      const clean = String(fullName).trim();
+      return clean ? clean.split(/\s+/)[0] : "Learner";
+    }
+
+    function applyGreetingName(rawName) {
+      const first = getFirstName(rawName);
+      document.getElementById("greetName").textContent = first;
+      localStorage.setItem("sc_first_name", first);
+      return first;
+    }
+
+    function toast(msg) {
+      const el = document.getElementById("toast");
+      el.textContent = msg;
+      el.classList.remove("hidden");
+      clearTimeout(window._t);
+      window._t = setTimeout(() => el.classList.add("hidden"), 2500);
+    }
+
+    function formatTime(ts) {
+      if (!ts?.toDate) return "";
+      return ts.toDate().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    }
+
+    document.getElementById("openNewCircleBtn").addEventListener("click", () => {
+      document.getElementById("newCircleSheet").classList.remove("hidden");
+    });
+
+    // Orbit Match (Random Study Buddy Spin)
+    document.getElementById("orbitMatchBtn").addEventListener("click", () => {
+      if (!currentUser || !myProfile) return;
+      const blocked = new Set(myProfile.blockedUsers || []);
+      const candidates = allUsers.filter(u => u.uid && u.uid !== currentUser.uid && u.status !== "banned" && !blocked.has(u.uid) && !myConnections.has(u.uid));
+      const pool = candidates.length > 0
+        ? candidates
+        : allUsers.filter(u => u.uid && u.uid !== currentUser.uid && u.status !== "banned" && !blocked.has(u.uid));
+
+      if (pool.length === 0) {
+        return toast("No new peers available yet—invite friends to join!");
+      }
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      window.openPeerSheet(pick.uid);
+    });
+
+    // Search
+    document.getElementById("peerSearch").addEventListener("input", (e) => {
+      searchTerm = e.target.value.trim().toLowerCase();
+      renderPeers();
+    });
+
+    // Icebreakers inside Chat
+    const iceBar = document.getElementById("icebreakerBar");
+    document.getElementById("toggleIceBtn").addEventListener("click", () => {
+      iceBar.classList.toggle("hidden");
+    });
+    iceBar.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("ice-chip")) return;
+      const input = document.getElementById("chatInput");
+      input.value = e.target.textContent;
+      input.focus();
+      iceBar.classList.add("hidden");
+    });
+
+    function renderCircles() {
+      const merged = [...DEFAULT_CIRCLES, ...customCircles];
+      document.getElementById("circlesList").innerHTML = merged.map(c => `
+        <div class="fluid-row" onclick="openCircleById('${esc(c.id)}')">
+          <div class="circle-orb">#</div>
+          <div class="row-body">
+            <div class="row-top">
+              <span class="row-title">${esc(c.name)}</span>
+              <span class="inline-tag">${esc(c.tag || "Study")}</span>
+            </div>
+            <div class="row-sub">${esc(c.desc)}</div>
+          </div>
+          <span class="pill-action pill-subtle">Join</span>
+        </div>
+      `).join("");
+    }
+    renderCircles();
+
+    document.getElementById("newCircleForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+      const name = document.getElementById("circleNameInput").value.trim();
+      const tag = document.getElementById("circleTagInput").value;
+      const desc = document.getElementById("circleDescInput").value.trim();
+      if (!name || !desc) return;
+
+      await addDoc(collection(db, "customCircles"), {
+        name,
+        tag,
+        desc,
+        createdBy: currentUser.uid,
+        creatorName: getFirstName(myProfile?.name),
+        createdAt: serverTimestamp()
+      });
+
+      e.target.reset();
+      closeNewCircle();
+      toast(`Circle "${name}" created!`);
+    });
+
+    async function setPresence(isOnline) {
+      if (!currentUser) return;
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), {
+          online: isOnline,
+          lastActive: serverTimestamp()
+        }, { merge: true });
+      } catch {}
+    }
+
+    document.addEventListener("visibilitychange", () => {
+      if (currentUser) setPresence(document.visibilityState === "visible");
+    });
+    window.addEventListener("pagehide", () => setPresence(false));
+
+    // Auth Guard
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "index.html";
+        return;
+      }
+      currentUser = user;
+      const initialFirst = applyGreetingName(user.displayName || user.email?.split("@")[0] || "Learner");
+      document.getElementById("settingsEmailTag").textContent = user.email || "Verified";
+
+      const userRef = doc(db, "users", user.uid);
+      const snap = await getDoc(userRef);
+
+      if (!snap.exists()) {
+        await setDoc(userRef, {
+          uid: user.uid,
+          name: initialFirst,
+          email: user.email,
+          photoURL: user.photoURL || "",
+          country: "Global",
+          college: "",
+          bio: "Excited to connect and learn!",
+          role: "user",
+          status: "active",
+          online: true,
+          blockedUsers: [],
+          createdAt: serverTimestamp(),
+          lastLogin: serverTimestamp(),
+          lastActive: serverTimestamp()
+        });
+      } else {
+        setPresence(true);
+      }
+
+      onSnapshot(userRef, async (docSnap) => {
+        if (!docSnap.exists()) return;
+        myProfile = docSnap.data();
+
+        if (myProfile.status === "banned") {
+          alert("Your account has been suspended for violating SingleCircle community rules.");
+          await signOut(auth);
+          window.location.href = "index.html";
+          return;
+        }
+
+        const displayFirst = applyGreetingName(myProfile.name || user.displayName || user.email?.split("@")[0]);
+        document.getElementById("profName").value = displayFirst;
+        document.getElementById("profCountry").value = myProfile.country || "";
+        document.getElementById("profCollege").value = myProfile.college || "";
+        document.getElementById("profBio").value = myProfile.bio || "";
+        document.getElementById("adminLinkBtn").classList.toggle("hidden", myProfile.role !== "admin");
+
+        const blockedCount = (myProfile.blockedUsers || []).length;
+        const unblockBtn = document.getElementById("unblockAllBtn");
+        unblockBtn.classList.toggle("hidden", blockedCount === 0);
+        unblockBtn.textContent = `Unblock Blocked Users (${blockedCount})`;
+
+        renderPeers();
+      });
+
+      startListeners();
+    });
+
+    function startListeners() {
+      onSnapshot(collection(db, "users"), (snap) => {
+        allUsers = snap.docs.map(d => d.data());
+        renderPeers();
+      });
+
+      const cQ = query(collection(db, "customCircles"), orderBy("createdAt", "desc"), limit(20));
+      onSnapshot(cQ, (snap) => {
+        customCircles = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        renderCircles();
+      });
+
+      const reqQ = query(collection(db, "requests"), where("to", "==", currentUser.uid));
+      onSnapshot(reqQ, (snap) => {
+        pendingRequestsMap.clear();
+        const pending = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(r => r.status === "pending");
+        pending.forEach(r => pendingRequestsMap.set(r.id, r));
+
+        document.getElementById("reqCount").textContent = pending.length;
+        document.getElementById("reqDot").classList.toggle("hidden", pending.length === 0);
+        document.getElementById("requestsWrap").classList.toggle("hidden", pending.length === 0);
+
+        document.getElementById("requestsList").innerHTML = pending.map(r => {
+          const rFirst = getFirstName(r.fromName);
+          return `
+            <div class="fluid-row">
+              <div class="row-avatar">${esc(rFirst[0].toUpperCase())}</div>
+              <div class="row-body">
+                <div class="row-top">
+                  <span class="row-title">${esc(rFirst)}</span>
+                  <span class="inline-tag">${esc(r.fromCountry || "Global")}</span>
+                </div>
+                <div class="row-sub">Sent a mutual connect request</div>
+              </div>
+              <div style="display:flex; gap:6px;">
+                <button class="pill-action pill-blue" onclick="respondRequestById('${esc(r.id)}', true)">Accept</button>
+                <button class="pill-action pill-subtle" onclick="respondRequestById('${esc(r.id)}', false)">✕</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      });
+
+      const connQ = query(collection(db, "connections"), where("members", "array-contains", currentUser.uid));
+      onSnapshot(connQ, (snap) => {
+        const list = document.getElementById("chatsList");
+        myConnections = new Set();
+        dmListMap.clear();
+        const blocked = new Set(myProfile?.blockedUsers || []);
+        const items = [];
+
+        snap.docs.forEach(d => {
+          const data = d.data();
+          const otherUid = (data.members || []).find(id => id !== currentUser.uid);
+          if (!otherUid || blocked.has(otherUid)) return;
+          myConnections.add(otherUid);
+          const otherInfo = data.users?.[otherUid] || { name: "Student", country: "Global" };
+          const item = { chatId: d.id, otherUid, ...otherInfo };
+          dmListMap.set(d.id, item);
+          items.push(item);
+        });
+
+        renderPeers();
+        if (items.length === 0) {
+          list.innerHTML = `<div class="empty-note">No mutual chats yet. Tap any peer in Orbit or spin Discover!</div>`;
+          return;
+        }
+        list.innerHTML = items.map(c => {
+          const cFirst = getFirstName(c.name);
+          return `
+            <div class="fluid-row" onclick="openDMById('${esc(c.chatId)}')">
+              <div class="row-avatar">${esc(cFirst[0].toUpperCase())}</div>
+              <div class="row-body">
+                <div class="row-top">
+                  <span class="row-title">${esc(cFirst)}</span>
+                  <span class="inline-tag">${esc(c.country || "Global")}</span>
+                </div>
+                <div class="row-sub">Tap to message</div>
+              </div>
+              <span class="pill-action pill-blue">Chat</span>
+            </div>
+          `;
+        }).join("");
+      });
+    }
+
+    function renderPeers() {
+      if (!currentUser || !myProfile) return;
+      const blocked = new Set(myProfile.blockedUsers || []);
+      const visible = allUsers
+        .filter(u => u.uid && u.uid !== currentUser.uid && u.status !== "banned" && !blocked.has(u.uid))
+        .sort((a, b) => (b.online ? 1 : 0) - (a.online ? 1 : 0));
+
+      const onlineCount = visible.filter(u => u.online).length;
+      document.getElementById("totalPeersPill").textContent = onlineCount > 0
+        ? `${onlineCount} Online • ${visible.length} Peers`
+        : `${visible.length} Peers`;
+
+      const orbitWrap = document.getElementById("orbitStripWrap");
+      const orbitStrip = document.getElementById("orbitStrip");
+      orbitWrap.classList.toggle("hidden", visible.length === 0);
+      orbitStrip.innerHTML = visible.slice(0, 14).map(u => {
+        const first = getFirstName(u.name);
+        return `
+          <div class="orbit-node" onclick="openPeerSheet('${esc(u.uid)}')">
+            <div class="orbit-ring-wrap">
+              <div class="orbit-ring-inner">
+                <div class="orbit-avatar">
+                  ${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="">` : esc(first[0].toUpperCase())}
+                </div>
+              </div>
+              ${u.online ? `<span class="online-badge"></span>` : ""}
+              <span class="orbit-country-dot">${esc((u.country || "GL").slice(0, 2))}</span>
+            </div>
+            <span class="orbit-node-name">${esc(first)}</span>
+          </div>
+        `;
+      }).join("");
+
+      const filtered = visible.filter(u => {
+        if (!searchTerm) return true;
+        const hay = `${u.name || ""} ${u.country || ""} ${u.college || ""} ${u.bio || ""}`.toLowerCase();
+        return hay.includes(searchTerm);
+      });
+
+      document.getElementById("peerCount").textContent = filtered.length;
+      const list = document.getElementById("peersList");
+
+      if (filtered.length === 0) {
+        list.innerHTML = `<div class="empty-note">No peers match right now. Invite college friends to join SingleCircle!</div>`;
+        return;
+      }
+
+      list.innerHTML = filtered.map(u => {
+        const first = getFirstName(u.name);
+        const isFriend = myConnections.has(u.uid);
+        return `
+          <div class="fluid-row" onclick="openPeerSheet('${esc(u.uid)}')">
+            <div class="avatar-wrap">
+              <div class="row-avatar">${u.photoURL ? `<img src="${esc(u.photoURL)}" alt="">` : esc(first[0].toUpperCase())}</div>
+              ${u.online ? `<span class="online-badge"></span>` : ""}
+            </div>
+            <div class="row-body">
+              <div class="row-top">
+                <span class="row-title">${esc(first)}</span>
+                <span class="inline-tag">${esc(u.country || "Global")}</span>
+              </div>
+              <div class="row-sub">${u.college ? esc(u.college) : esc(u.bio || "Global Learner")}</div>
+            </div>
+            <span class="pill-action ${isFriend ? "pill-blue" : "pill-subtle"}">${isFriend ? "Chat" : "Connect"}</span>
+          </div>
+        `;
+      }).join("");
+    }
+
+    // Peer Sheet
+    window.openPeerSheet = (uid) => {
+      const peer = allUsers.find(u => u.uid === uid);
+      if (!peer) return;
+      const first = getFirstName(peer.name);
+
+      document.getElementById("sheetAvatar").innerHTML = peer.photoURL
+        ? `<img src="${esc(peer.photoURL)}" alt="">`
+        : esc(first[0].toUpperCase());
+      document.getElementById("sheetOnlineDot").classList.toggle("hidden", !peer.online);
+      document.getElementById("sheetName").textContent = first;
+      document.getElementById("sheetMeta").textContent = `${peer.country || "Global"}${peer.college ? " • " + peer.college : ""}`;
+      document.getElementById("sheetBio").textContent = peer.bio || "Excited to connect, share skills & make global friends.";
+
+      const primaryWrap = document.getElementById("sheetPrimaryAction");
+      if (myConnections.has(peer.uid)) {
+        const chatId = [currentUser.uid, peer.uid].sort().join("_");
+        primaryWrap.innerHTML = `<button class="btn-full btn-full-blue" id="sheetOpenChatBtn">Open Private Chat</button>`;
+        document.getElementById("sheetOpenChatBtn").onclick = () => {
+          closePeerSheet();
+          openDM(chatId, peer.uid, first, peer.country || "Global");
+        };
+      } else {
+        primaryWrap.innerHTML = `<button class="btn-full btn-full-blue" id="sheetReqBtn">Send Mutual Connect Request</button>`;
+        document.getElementById("sheetReqBtn").onclick = () => sendConnectRequest(peer.uid);
+      }
+
+      document.getElementById("sheetReportBtn").onclick = () => reportUser(peer.uid, first);
+      document.getElementById("sheetBlockBtn").onclick = () => blockUser(peer.uid, first);
+      document.getElementById("peerSheet").classList.remove("hidden");
+    };
+
+    async function sendConnectRequest(targetUid) {
+      const myFirst = getFirstName(myProfile.name);
+      await setDoc(doc(db, "requests", `${currentUser.uid}_${targetUid}`), {
+        from: currentUser.uid,
+        fromName: myFirst,
+        fromCountry: myProfile.country || "Global",
+        to: targetUid,
+        status: "pending",
+        createdAt: serverTimestamp()
+      });
+      closePeerSheet();
+      toast("Connect request sent!");
+    }
+
+    window.respondRequestById = async (reqId, accept) => {
+      const r = pendingRequestsMap.get(reqId);
+      if (!r) return;
+      await updateDoc(doc(db, "requests", reqId), { status: accept ? "accepted" : "declined" });
+      if (accept) {
+        const chatId = [currentUser.uid, r.from].sort().join("_");
+        await setDoc(doc(db, "connections", chatId), {
+          members: [currentUser.uid, r.from],
+          users: {
+            [currentUser.uid]: { name: getFirstName(myProfile.name), country: myProfile.country || "Global" },
+            [r.from]: { name: getFirstName(r.fromName), country: r.fromCountry || "Global" }
+          },
+          createdAt: serverTimestamp()
+        }, { merge: true });
+        toast("Connected! Open Chats tab to talk.");
+      } else {
+        toast("Request ignored.");
+      }
+    };
+
+    async function reportUser(targetUid, targetName) {
+      const reason = prompt(`Why are you reporting ${targetName}? (Spam, Harassment, Unsafe behavior)`);
+      if (!reason || !reason.trim()) return;
+      await addDoc(collection(db, "reports"), {
+        reporterUid: currentUser.uid,
+        reporterName: getFirstName(myProfile.name),
+        reportedUid: targetUid,
+        reportedName: targetName || "User",
+        reason: reason.trim(),
+        status: "open",
+        createdAt: serverTimestamp()
+      });
+      closePeerSheet();
+      toast("Report submitted to Admin Moderation.");
+    }
+
+    async function blockUser(targetUid, targetName) {
+      if (!confirm(`Block ${targetName}? They will disappear from your app.`)) return;
+      await setDoc(doc(db, "users", currentUser.uid), { blockedUsers: arrayUnion(targetUid) }, { merge: true });
+      closePeerSheet();
+      if (activeChat?.otherUid === targetUid) closeChat();
+      toast(`${targetName} blocked.`);
+    }
+
+    // Circles & DMs
+    window.openCircleById = (id) => {
+      const c = [...DEFAULT_CIRCLES, ...customCircles].find(x => x.id === id);
+      if (!c) return;
+      activeChat = { type: "circle", id: c.id, title: c.name };
+      document.getElementById("chatTitle").textContent = c.name;
+      document.getElementById("chatSub").textContent = c.desc;
+      document.getElementById("chatSafetyBtn").classList.add("hidden");
+      iceBar.classList.add("hidden");
+      listenMessages(collection(db, "circles", c.id, "messages"));
+    };
+
+    window.openDMById = (chatId) => {
+      const item = dmListMap.get(chatId);
+      if (!item) return;
+      openDM(item.chatId, item.otherUid, getFirstName(item.name), item.country || "Global");
+    };
+
+    function openDM(chatId, otherUid, name, country) {
+      activeChat = { type: "dm", id: chatId, title: name, otherUid };
+      document.getElementById("chatTitle").textContent = name;
+      document.getElementById("chatSub").textContent = `${country} • Mutual Peer`;
+      document.getElementById("chatSafetyBtn").classList.remove("hidden");
+      iceBar.classList.remove("hidden");
+      listenMessages(collection(db, "chats", chatId, "messages"));
+    }
+
+    window.openChatSafety = () => {
+      if (!activeChat?.otherUid) return;
+      if (confirm("Press OK to REPORT this user, or Cancel to BLOCK them.")) {
+        reportUser(activeChat.otherUid, activeChat.title);
+      } else {
+        blockUser(activeChat.otherUid, activeChat.title);
+      }
+    };
+
+    function listenMessages(colRef) {
+      if (unsubChat) unsubChat();
+      document.getElementById("chatScreen").classList.remove("hidden");
+      const stream = document.getElementById("chatStream");
+      stream.innerHTML = `<div class="empty-note">Loading messages...</div>`;
+
+      const q = query(colRef, orderBy("createdAt", "asc"), limit(80));
+      unsubChat = onSnapshot(q, (snap) => {
+        if (snap.empty) {
+          stream.innerHTML = `<div class="empty-note">No messages yet—tap a quick icebreaker below to start talking!</div>`;
+          return;
+        }
+        stream.innerHTML = snap.docs.map(d => {
+          const m = d.data();
+          const isMe = m.senderUid === currentUser.uid;
+          return `
+            <div class="msg ${isMe ? "me" : "other"}">
+              ${!isMe && activeChat.type === "circle" ? `<div class="msg-sender">${esc(getFirstName(m.senderName))} • ${esc(m.senderCountry || "")}</div>` : ""}
+              <div>${esc(m.text)}</div>
+              <div class="msg-time">${formatTime(m.createdAt)}</div>
+            </div>
+          `;
+        }).join("");
+        stream.scrollTop = stream.scrollHeight;
+      });
+    }
+
+    document.getElementById("chatForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const input = document.getElementById("chatInput");
+      const text = input.value.trim();
+      if (!text || !activeChat) return;
+      input.value = "";
+      iceBar.classList.add("hidden");
+
+      const colRef = activeChat.type === "circle"
+        ? collection(db, "circles", activeChat.id, "messages")
+        : collection(db, "chats", activeChat.id, "messages");
+
+      await addDoc(colRef, {
+        text,
+        senderUid: currentUser.uid,
+        senderName: getFirstName(myProfile.name),
+        senderCountry: myProfile.country || "Global",
+        createdAt: serverTimestamp()
+      });
+    });
+
+    window.closeChat = () => {
+      if (unsubChat) unsubChat();
+      activeChat = null;
+      document.getElementById("chatScreen").classList.add("hidden");
+    };
+
+    // Save Profile & Immediately Update Greeting Name ("Hey, Raj")
+    document.getElementById("profileForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const saveBtn = document.getElementById("saveProfileBtn");
+      const rawName = document.getElementById("profName").value.trim();
+      const firstName = applyGreetingName(rawName);
+      document.getElementById("profName").value = firstName;
+
+      const country = document.getElementById("profCountry").value.trim() || "Global";
+      const college = document.getElementById("profCollege").value.trim();
+      const bio = document.getElementById("profBio").value.trim();
+
+      if (!currentUser) {
+        closeSettings();
+        return toast(`Updated to Hey, ${firstName}! Open via GitHub Pages URL to sync to cloud.`);
+      }
+
+      saveBtn.disabled = true;
+      saveBtn.textContent = "Saving...";
+
+      try {
+        await updateProfile(currentUser, { displayName: firstName });
+        await setDoc(doc(db, "users", currentUser.uid), {
+          uid: currentUser.uid,
+          name: firstName,
+          email: currentUser.email,
+          country,
+          college,
+          bio,
+          lastActive: serverTimestamp()
+        }, { merge: true });
+
+        closeSettings();
+        toast(`Saved! Hey, ${firstName}`);
+      } catch (err) {
+        toast("Could not save: " + err.message);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = "Save Changes";
+      }
+    });
+
+    // Unblock All
+    document.getElementById("unblockAllBtn").addEventListener("click", async () => {
+      if (!confirm("Unblock all previously blocked users?")) return;
+      await setDoc(doc(db, "users", currentUser.uid), { blockedUsers: [] }, { merge: true });
+      toast("All blocked users unblocked.");
+    });
+
+    // Logout
+    document.getElementById("logoutBtn").addEventListener("click", async () => {
+      await setPresence(false);
+      localStorage.removeItem("sc_first_name");
+      await signOut(auth);
+      window.location.href = "index.html";
+    });
+
+    // Permanent Account Deletion
+    document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+      if (!confirm("Permanently delete your account & data? This cannot be undone.")) return;
+      try {
+        await deleteDoc(doc(db, "users", currentUser.uid));
+        localStorage.removeItem("sc_first_name");
+        await deleteUser(currentUser);
+        window.location.href = "index.html";
+      } catch {
+        toast("Please log out and sign in once, then tap Delete Account.");
+      }
+    });
+  </script>
+</body>
+</html>
