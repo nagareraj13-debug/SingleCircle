@@ -1,0 +1,16 @@
+{
+  "name": "SingleCircle",
+  "short_name": "SingleCircle",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#04060c",
+  "theme_color": "#04060c",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
