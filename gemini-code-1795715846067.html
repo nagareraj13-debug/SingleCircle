@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" id="metaThemeColor" content="#04060c" />
+  <title>SingleCircle — Owner</title>
+  <link rel="icon" type="image/png" href="icon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root, [data-theme="dark"] {
+      --bg:#04060c; --bg-elevated:#0d121d; --surface:rgba(255,255,255,0.045); --aurora:rgba(59,130,246,0.18);
+      --text:#f8fafc; --text-soft:#cbd5e1; --muted:#7c8aa3; --hairline:rgba(255,255,255,0.08);
+      --accent:#3b82f6; --accent-soft:rgba(59,130,246,0.15); --accent-text:#7dd3fc;
+      --icon-btn-bg:#151820; --icon-btn-ring:#292d38; --icon-btn-shadow:inset 0 1px 1px rgba(255,255,255,0.09),0 4px 14px rgba(0,0,0,0.55);
+      --icon-color:#fff; --danger:#f87171; --danger-soft:rgba(239,68,68,0.16);
+      --warn:#fbbf24; --warn-soft:rgba(245,158,11,0.15); --success:#4ade80; --success-soft:rgba(34,197,94,0.15);
+      color-scheme:dark;
+    }
+    [data-theme="light"] {
+      --bg:#f6f8fc; --bg-elevated:#ffffff; --surface:rgba(15,23,42,0.045); --aurora:rgba(59,130,246,0.12);
+      --text:#0b1120; --text-soft:#334155; --muted:#64748b; --hairline:rgba(15,23,42,0.085);
+      --accent:#2563eb; --accent-soft:rgba(37,99,235,0.11); --accent-text:#2563eb;
+      --icon-btn-bg:#ffffff; --icon-btn-ring:#e2e8f0; --icon-btn-shadow:inset 0 1px 1px rgba(255,255,255,0.9),0 4px 12px rgba(15,23,42,0.08);
+      --icon-color:#0f172a; --danger:#dc2626; --danger-soft:rgba(220,38,38,0.11);
+      --warn:#b45309; --warn-soft:rgba(245,158,11,0.14); --success:#16a34a; --success-soft:rgba(22,163,74,0.12);
+      color-scheme:light;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; font-family:'Plus Jakarta Sans',-apple-system,BlinkMacSystemFont,sans-serif; }
+    html, body { min-height:100dvh; background:var(--bg); color:var(--text); transition:background-color .25s ease, color .25s ease; }
+    .ambient { position:fixed; top:-160px; left:50%; transform:translateX(-50%); width:520px; height:360px; background:radial-gradient(circle,var(--aurora) 0%,transparent 72%); pointer-events:none; z-index:0; }
+
+    .topbar { position:sticky; top:0; z-index:10; display:flex; align-items:center; justify-content:space-between; padding:max(16px,env(safe-area-inset-top)) 20px 12px; max-width:580px; width:100%; margin:0 auto; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); }
+    .top-left { display:flex; align-items:center; gap:12px; }
+    .tactile-btn { width:40px; height:40px; border-radius:50%; background:var(--icon-btn-bg); border:2px solid var(--icon-btn-ring); box-shadow:var(--icon-btn-shadow); color:var(--icon-color); display:grid; place-items:center; cursor:pointer; }
+    .tactile-btn:active { transform:scale(0.91); }
+    .tactile-btn svg { width:19px; height:19px; stroke-width:2; }
+    .title-wrap h1 { font-size:19px; font-weight:800; letter-spacing:-0.03em; }
+    .title-wrap span { font-size:11px; font-weight:700; color:var(--accent-text); text-transform:uppercase; letter-spacing:0.06em; }
+
+    /* Password Lock Screen */
+    .lock-wrap { position:relative; z-index:2; max-width:380px; width:100%; margin:72px auto 0; padding:0 24px; text-align:center; }
+    .lock-orb { width:58px; height:58px; border-radius:50%; margin:0 auto 18px; background:var(--accent-soft); color:var(--accent-text); display:grid; place-items:center; box-shadow:0 0 28px rgba(59,130,246,0.25); }
+    .lock-wrap h2 { font-size:24px; font-weight:800; letter-spacing:-0.03em; margin-bottom:6px; }
+    .lock-wrap p { font-size:13.5px; color:var(--muted); margin-bottom:24px; }
+    .pass-pill { display:flex; align-items:center; background:var(--surface); border:1px solid var(--hairline); border-radius:999px; padding:0 16px; margin-bottom:14px; }
+    .pass-pill:focus-within { border-color:var(--accent); }
+    .pass-pill input { width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:15px; font-weight:600; padding:14px 0; }
+    .eye-btn { background:transparent; border:none; color:var(--muted); cursor:pointer; padding:6px; display:flex; }
+    .btn-unlock { width:100%; border:none; border-radius:999px; padding:14px 20px; font-size:14.5px; font-weight:700; color:#fff; background:linear-gradient(135deg,#3b82f6,#2563eb); box-shadow:0 10px 26px rgba(37,99,235,0.36); cursor:pointer; }
+    .lock-error { margin-top:12px; font-size:12.5px; font-weight:600; color:var(--danger); }
+
+    /* Main Panel */
+    main { position:relative; z-index:2; max-width:580px; width:100%; margin:0 auto; padding:10px 20px 64px; }
+    .stats-strip { display:grid; grid-template-columns:repeat(4,1fr); padding:14px 0 18px; border-bottom:1px solid var(--hairline); margin-bottom:18px; text-align:center; }
+    .stat-item { position:relative; }
+    .stat-item:not(:last-child)::after { content:""; position:absolute; right:0; top:18%; height:64%; width:1px; background:var(--hairline); }
+    .stat-num { font-size:22px; font-weight:800; letter-spacing:-0.03em; }
+    .stat-lbl { font-size:10.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; margin-top:2px; }
+
+    .pill-tabs { display:grid; grid-template-columns:1fr 1fr; background:var(--surface); border:1px solid var(--hairline); border-radius:999px; padding:4px; margin-bottom:16px; }
+    .tab-btn { background:transparent; border:none; color:var(--muted); font-size:13px; font-weight:700; padding:10px; border-radius:999px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; }
+    .tab-btn.active { background:var(--accent); color:#fff; box-shadow:0 4px 14px rgba(59,130,246,0.35); }
+    .tab-count { padding:1px 7px; border-radius:999px; background:var(--danger); color:#fff; font-size:10.5px; font-weight:800; }
+
+    .search-line { display:flex; align-items:center; gap:10px; padding:10px 4px; border-bottom:1px solid var(--hairline); margin-bottom:10px; }
+    .search-line:focus-within { border-bottom-color:var(--accent); }
+    .search-line svg { width:17px; height:17px; color:var(--muted); }
+    .search-line input { width:100%; background:transparent; border:none; outline:none; color:var(--text); font-size:14px; font-weight:500; }
+
+    .fluid-list { display:flex; flex-direction:column; gap:12px; }
+    .user-row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 2px; border-bottom:1px solid var(--hairline); }
+    .row-info { flex:1; min-width:0; }
+    .row-top { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+    .row-title { font-size:14.5px; font-weight:700; }
+    .row-sub { font-size:12.5px; color:var(--muted); margin-top:3px; word-break:break-word; }
+
+    /* Detailed Report Card */
+    .report-card { background:var(--bg-elevated); border:1px solid var(--hairline); border-radius:18px; padding:16px; display:flex; flex-direction:column; gap:10px; }
+    .report-card.critical { border-color:rgba(239,68,68,0.4); }
+    .report-quote { background:var(--danger-soft); border-left:3px solid var(--danger); padding:10px 12px; border-radius:10px; font-size:13.5px; font-weight:600; color:var(--text); word-break:break-word; }
+    .detail-grid { display:grid; grid-template-columns:1fr; gap:5px; font-size:12px; color:var(--text-soft); padding:4px 0; }
+    .detail-grid strong { color:var(--muted); font-weight:700; }
+    .report-actions { display:flex; gap:8px; flex-wrap:wrap; padding-top:6px; border-top:1px solid var(--hairline); }
+
+    .tag { font-size:10px; font-weight:800; padding:2.5px 8px; border-radius:999px; text-transform:uppercase; }
+    .tag-blue { background:var(--accent-soft); color:var(--accent-text); }
+    .tag-red { background:var(--danger-soft); color:var(--danger); }
+    .tag-warn { background:var(--warn-soft); color:var(--warn); }
+    .tag-green { background:var(--success-soft); color:var(--success); }
+
+    .pill-btn { border:none; border-radius:999px; padding:8px 14px; font-size:12px; font-weight:700; cursor:pointer; flex-shrink:0; }
+    .pill-btn:active { transform:scale(0.94); }
+    .btn-red { background:var(--danger-soft); color:var(--danger); }
+    .btn-green { background:var(--success-soft); color:var(--success); }
+    .btn-subtle { background:var(--surface); color:var(--text-soft); }
+
+    .empty-note { text-align:center; color:var(--muted); font-size:13.5px; padding:40px 10px; }
+    .toast { position:fixed; top:max(70px,env(safe-area-inset-top)); left:50%; transform:translateX(-50%); background:var(--bg-elevated); border:1px solid var(--hairline); color:var(--text); padding:10px 18px; border-radius:999px; font-size:13px; font-weight:600; z-index:60; box-shadow:0 10px 30px rgba(0,0,0,0.35); }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="ambient"></div>
+
+  <header class="topbar">
+    <div class="top-left">
+      <button class="tactile-btn" onclick="window.location.href='app.html'" aria-label="Back">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <div class="title-wrap">
+        <span>SingleCircle</span>
+        <h1>Owner</h1>
+      </div>
+    </div>
+    <button class="tactile-btn" id="themeToggleBtn" type="button" aria-label="Toggle theme">
+      <svg id="sunIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+      <svg id="moonIcon" class="hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+    </button>
+  </header>
+
+  <!-- Step 1: Owner Password Gate -->
+  <section id="ownerLock" class="lock-wrap hidden">
+    <div class="lock-orb">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </div>
+    <h2>Owner Verification</h2>
+    <p>Enter Owner password to view live users and safety alerts.</p>
+    <form id="ownerPassForm">
+      <div class="pass-pill">
+        <input type="password" id="ownerPassInput" placeholder="Enter Owner password" autocomplete="off" required />
+        <button class="eye-btn" type="button" id="toggleEyeBtn" aria-label="Show password">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+      </div>
+      <button class="btn-unlock" type="submit">Unlock Owner Panel</button>
+    </form>
+    <div id="lockError" class="lock-error hidden">Incorrect password. Try again.</div>
+  </section>
+
+  <!-- Step 2: Unlocked Owner Dashboard -->
+  <main id="ownerMain" class="hidden">
+    <div class="stats-strip">
+      <div class="stat-item"><div class="stat-num" id="statTotal">0</div><div class="stat-lbl">Users</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--success);" id="statOnline">0</div><div class="stat-lbl">Online</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--danger);" id="statBanned">0</div><div class="stat-lbl">Banned</div></div>
+      <div class="stat-item"><div class="stat-num" style="color:var(--warn);" id="statReports">0</div><div class="stat-lbl">Alerts</div></div>
+    </div>
+
+    <div class="pill-tabs">
+      <button class="tab-btn active" id="tabReports" onclick="switchOwnerTab('reports')">
+        Safety Alerts <span id="openAlertPill" class="tab-count hidden">0</span>
+      </button>
+      <button class="tab-btn" id="tabUsers" onclick="switchOwnerTab('users')">All Users</button>
+    </div>
+
+    <section id="sec-reports">
+      <div class="fluid-list" id="reportsList"><div class="empty-note">Loading safety alerts...</div></div>
+    </section>
+
+    <section id="sec-users" class="hidden">
+      <div class="search-line">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="userSearch" placeholder="Search user by name, email or country..." autocomplete="off" />
+      </div>
+      <div id="usersList"><div class="empty-note">Loading users...</div></div>
+    </section>
+  </main>
+
+  <div id="accessCheck" class="empty-note" style="margin-top:80px;">Verifying Owner access...</div>
+  <div id="toast" class="toast hidden"></div>
+
+  <script>
+    const htmlEl = document.documentElement, sunIcon = document.getElementById("sunIcon"), moonIcon = document.getElementById("moonIcon"), metaTheme = document.getElementById("metaThemeColor");
+    function applyTheme(t) {
+      htmlEl.setAttribute("data-theme", t); localStorage.setItem("sc_theme", t);
+      const d = t === "dark"; sunIcon.classList.toggle("hidden", !d); moonIcon.classList.toggle("hidden", d);
+      metaTheme.setAttribute("content", d ? "#04060c" : "#f6f8fc");
+    }
+    applyTheme(localStorage.getItem("sc_theme") || "dark");
+    document.getElementById("themeToggleBtn").addEventListener("click", () => applyTheme(htmlEl.getAttribute("data-theme")==="dark"?"light":"dark"));
+    document.getElementById("toggleEyeBtn").addEventListener("click", () => { const i = document.getElementById("ownerPassInput"); i.type = i.type==="password"?"text":"password"; });
+    window.switchOwnerTab = (tab) => {
+      document.getElementById("sec-reports").classList.toggle("hidden", tab !== "reports");
+      document.getElementById("sec-users").classList.toggle("hidden", tab !== "users");
+      document.getElementById("tabReports").classList.toggle("active", tab === "reports");
+      document.getElementById("tabUsers").classList.toggle("active", tab === "users");
+    };
+  </script>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { getFirestore, doc, getDoc, updateDoc, deleteDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyACZOLeOz4XOK6dO1LW0Nbf27ng2ZPaC08",
+      authDomain: "singlecircle.firebaseapp.com",
+      projectId: "singlecircle",
+      storageBucket: "singlecircle.firebasestorage.app",
+      messagingSenderId: "145275527506",
+      appId: "1:145275527506:web:e223164b91c7c759f0da8b",
+      measurementId: "G-D9EGP5N3PF"
+    };
+
+    const OWNER_PASS = "Rajstar";
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let myUid = null, allUsers = [], searchTerm = "", listenersStarted = false;
+    const esc = (s = "") => String(s).replace(/[&<>"']/g, m => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    function toast(msg) {
+      const el = document.getElementById("toast"); el.textContent = msg; el.classList.remove("hidden");
+      clearTimeout(window._t); window._t = setTimeout(() => el.classList.add("hidden"), 2500);
+    }
+    function formatDate(r) {
+      const ms = r.createdAtMs || r.createdAt?.toMillis?.() || 0;
+      if (!ms) return "Just now";
+      return new Date(ms).toLocaleString([], { day:"2-digit", month:"short", year:"numeric", hour:"2-digit", minute:"2-digit" });
+    }
+
+    document.getElementById("userSearch").addEventListener("input", (e) => { searchTerm = e.target.value.trim().toLowerCase(); renderUsers(); });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) { window.location.href = "index.html"; return; }
+      myUid = user.uid;
+      const snap = await getDoc(doc(db, "users", user.uid));
+      const role = snap.exists() ? snap.data().role : "";
+      if (role !== "admin" && role !== "owner") {
+        document.getElementById("accessCheck").textContent = "Access Denied — Owner only.";
+        setTimeout(() => { window.location.href = "app.html"; }, 1200); return;
+      }
+      document.getElementById("accessCheck").classList.add("hidden");
+      document.getElementById("ownerLock").classList.remove("hidden");
+    });
+
+    document.getElementById("ownerPassForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const entered = document.getElementById("ownerPassInput").value.trim();
+      const errEl = document.getElementById("lockError");
+      if (entered !== OWNER_PASS) { errEl.classList.remove("hidden"); return; }
+      errEl.classList.add("hidden");
+      document.getElementById("ownerLock").classList.add("hidden");
+      document.getElementById("ownerMain").classList.remove("hidden");
+      if (!listenersStarted) { listenersStarted = true; startOwnerListeners(); }
+    });
+
+    function startOwnerListeners() {
+      onSnapshot(collection(db, "users"), (snap) => {
+        allUsers = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        document.getElementById("statTotal").textContent = allUsers.length;
+        document.getElementById("statOnline").textContent = allUsers.filter(u => u.online).length;
+        document.getElementById("statBanned").textContent = allUsers.filter(u => u.status === "banned").length;
+        renderUsers();
+      });
+
+      // Zero-index client-sorted listener so EVERY triggered alert appears immediately with full details
+      onSnapshot(collection(db, "reports"), (snap) => {
+        const reports = snap.docs
+          .map(d => ({ id: d.id, ...d.data() }))
+          .sort((a, b) => (b.createdAtMs || b.createdAt?.toMillis?.() || 0) - (a.createdAtMs || a.createdAt?.toMillis?.() || 0));
+
+        const openCount = reports.filter(r => r.status !== "resolved").length;
+        document.getElementById("statReports").textContent = openCount;
+        const pill = document.getElementById("openAlertPill");
+        if (openCount > 0) { pill.textContent = openCount; pill.classList.remove("hidden"); } else pill.classList.add("hidden");
+
+        const list = document.getElementById("reportsList");
+        if (!reports.length) {
+          list.innerHTML = `<div class="empty-note">No safety alerts or reports right now. Community is clean!</div>`;
+          return;
+        }
+
+        list.innerHTML = reports.map(r => {
+          const isResolved = r.status === "resolved";
+          const isAuto = !!r.autoFlagged || r.type === "auto_guard";
+          const userDoc = allUsers.find(u => u.id === r.reportedUid);
+          const alreadyBanned = userDoc?.status === "banned";
+
+          return `
+            <div class="report-card ${(!isResolved && isAuto) ? "critical" : ""}">
+              <div class="row-top">
+                <span class="tag ${isAuto ? "tag-red" : "tag-warn"}">${isAuto ? "🤖 Auto Alert" : "🚩 User Report"}</span>
+                ${r.category ? `<span class="tag tag-blue">${esc(r.category)}</span>` : ""}
+                <span class="tag ${isResolved ? "tag-green" : "tag-red"}">${isResolved ? "Resolved" : "Open"}</span>
+                ${alreadyBanned ? `<span class="tag tag-red">User Banned</span>` : ""}
+              </div>
+
+              <div class="report-quote">
+                "${esc(r.flaggedMessage || r.reason || "No message attached")}"
+              </div>
+
+              <div class="detail-grid">
+                <div><strong>Flagged User:</strong> ${esc(r.reportedName || "User")} (${esc(r.reportedEmail || userDoc?.email || "N/A")})</div>
+                <div><strong>User UID:</strong> ${esc(r.reportedUid || "N/A")} • <strong>Country:</strong> ${esc(r.reportedCountry || userDoc?.country || "Global")}</div>
+                <div><strong>Target / Receiver:</strong> ${esc(r.receiverName || "N/A")} ${r.receiverEmail ? `(${esc(r.receiverEmail)})` : ""}</div>
+                ${r.matchedKeyword ? `<div><strong>Matched Keyword:</strong> <span style="color:var(--danger);font-weight:700;">"${esc(r.matchedKeyword)}"</span> • <strong>Source:</strong> ${esc(r.context || "Chat")}</div>` : `<div><strong>Reported By:</strong> ${esc(r.reporterName || "User")}</div>`}
+                <div><strong>Time:</strong> ${esc(formatDate(r))} ${r.chatId ? `• <strong>Chat ID:</strong> ${esc(r.chatId.slice(0, 14))}...` : ""}</div>
+              </div>
+
+              <div class="report-actions">
+                ${(!alreadyBanned && r.reportedUid) ? `<button class="pill-btn btn-red" onclick="banFromReport('${esc(r.reportedUid)}', '${esc(r.id)}')">Ban User</button>` : ""}
+                ${(alreadyBanned && r.reportedUid) ? `<button class="pill-btn btn-green" onclick="toggleBan('${esc(r.reportedUid)}', false)">Unban User</button>` : ""}
+                ${!isResolved ? `<button class="pill-btn btn-subtle" onclick="resolveReport('${esc(r.id)}')">Mark Resolved</button>` : ""}
+                <button class="pill-btn btn-subtle" onclick="deleteReportLog('${esc(r.id)}')">Delete Log</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      });
+    }
+
+    function renderUsers() {
+      const filtered = allUsers.filter(u => !searchTerm || `${u.name||""} ${u.email||""} ${u.country||""}`.toLowerCase().includes(searchTerm));
+      const list = document.getElementById("usersList");
+      if (!filtered.length) { list.innerHTML = `<div class="empty-note">No users found.</div>`; return; }
+      list.innerHTML = filtered.map(u => {
+        const isBanned = u.status === "banned", isMe = u.uid === myUid || u.id === myUid;
+        return `
+          <div class="user-row">
+            <div class="row-info">
+              <div class="row-top">
+                <span class="row-title">${esc(u.name || "Learner")}</span>
+                ${(u.role === "admin" || u.role === "owner") ? `<span class="tag tag-blue">Owner</span>` : ""}
+                ${isBanned ? `<span class="tag tag-red">Banned</span>` : ""}
+                ${u.online && !isBanned ? `<span class="tag tag-green">Online</span>` : ""}
+              </div>
+              <div class="row-sub">${esc(u.email || "")} • ${esc(u.country || "Global")}</div>
+            </div>
+            ${!isMe ? `<button class="pill-btn ${isBanned?"btn-green":"btn-red"}" onclick="toggleBan('${esc(u.id)}', ${!isBanned})">${isBanned?"Unban":"Ban"}</button>` : `<span class="tag tag-blue">You</span>`}
+          </div>`;
+      }).join("");
+    }
+
+    window.toggleBan = async (uid, shouldBan) => {
+      if (!confirm(`Are you sure you want to ${shouldBan ? "BAN" : "UNBAN"} this user?`)) return;
+      await updateDoc(doc(db, "users", uid), { status: shouldBan ? "banned" : "active" });
+      toast(shouldBan ? "User banned!" : "User unbanned!");
+    };
+
+    window.banFromReport = async (reportedUid, reportId) => {
+      if (!confirm("Ban this flagged user and mark alert resolved?")) return;
+      if (reportedUid) await updateDoc(doc(db, "users", reportedUid), { status: "banned" });
+      await updateDoc(doc(db, "reports", reportId), { status: "resolved" });
+      toast("User banned & alert resolved!");
+    };
+
+    window.resolveReport = async (id) => {
+      await updateDoc(doc(db, "reports", id), { status: "resolved" });
+      toast("Alert marked resolved.");
+    };
+
+    window.deleteReportLog = async (id) => {
+      if (!confirm("Delete this alert log permanently?")) return;
+      await deleteDoc(doc(db, "reports", id));
+      toast("Alert log deleted.");
+    };
+  </script>
+</body>
+</html>
